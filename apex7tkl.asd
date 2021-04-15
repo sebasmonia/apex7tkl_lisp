@@ -7,6 +7,7 @@
   :version "0.0.1"
   :serial t
   :depends-on (#:alexandria
-               #:cl-libusb)
+               #:cl-libusb
+               #:static-vectors)
   :components ((:file "package")
                (:file "apex7tkl")))
