@@ -3,19 +3,23 @@
 (in-package #:apex7tkl)
 
 (defparameter *keyb* nil "Local reference to the keyboard. Set during (initialize)")
+(defparameter *bytes-last-message* -1 "Temporary test variable")
 
 (defun initialize ()
-  (setf *keyb* (get-apex7tkl-device)))
+  (cffi:load-foreign-library "libusb-1.0.so")
+  (get-apex7tkl-device)
+  )
 
 (defun get-apex7tkl-device ()
-  "Return the ."
-  (let* ((vendor-id 4152)
-         (product-id 5656)
-         (device (car (cl-libusb:usb-get-devices-by-ids vendor-id product-id))))
-    (when device
-      (cl-libusb:usb-simple-setup device))
-    device))
-
+  "Return a reference to the apex7tkl device."
+  (let ((ctx (cffi:null-pointer))
+        (vendor-id 4152)
+        (product-id 5656))
+    (unless (= (%usb:init ctx) 0)
+      (error "Failed to initialize libusb"))
+    (setf *keyb*
+          (%usb:open-device-with-vid-pid ctx vendor-id product-id))
+    (%usb:exit ctx)))
 
 ;; https://lisptips.com/post/44370032877/literal-syntax-for-integers
 
@@ -23,30 +27,38 @@
 ;; the keyboard stops working until (libusb-ffi:usb-reset (cl-libusb::usb-handle-pointer a7t::*keyb*))
 
 (defun test ()
-  (static-vectors:with-static-vector (vect 642 :initial-element 0)
-    (setf (elt vect 0) #x3a)
-    (setf (elt vect 1) #x69)
-    (setf (elt vect 2) #x29)
-    (setf (elt vect 3) #x00)
-    (setf (elt vect 4) #x00)
-    (setf (elt vect 5) #x00)
-    (claim)
-    (cl-libusb:usb-control-msg *keyb* #x21 #x9 #x300 #x1 vect 3000)
-    (release)
-    ))
+  (let ((ctx (cffi:null-pointer))
+        (bytes-written -1)
+        (vect (make-array 642 :initial-element 0 :element-type 'integer)))
+    (unless (= (%usb:init ctx) 0)
+      (error "Failed to initialize libusb"))
+    (cffi::with-foreign-array (foreing-vect vect '(:array %usb:uint8-t 642))
+      (setf (elt vect 0) #x3a)
+      (setf (elt vect 1) #x69)
+      (setf (elt vect 2) #x29)
+      (setf (elt vect 3) #x00)
+      (setf (elt vect 4) #x00)
+      (setf (elt vect 5) #x00)
+      (claim)
+      (setf bytes-written
+            (%usb:control-transfer *keyb* #x21 #x9 #x300 #x1 foreing-vect 642 3000))
+      (release))
+  (%usb:exit ctx)
+  bytes-written))
+
 
 (defun claim ()
-  (cl-libusb:usb-claim-interface *keyb* 0)
-  (cl-libusb:usb-claim-interface *keyb* 1)
-  (cl-libusb:usb-claim-interface *keyb* 2)
-  (cl-libusb:usb-claim-interface *keyb* 3)
-  (cl-libusb:usb-claim-interface *keyb* 4))
+  (%usb:claim-interface *keyb* 0)
+  (%usb:claim-interface *keyb* 1)
+  (%usb:claim-interface *keyb* 2)
+  (%usb:claim-interface *keyb* 3)
+  (%usb:claim-interface *keyb* 4))
 
 (defun release ()
-  (cl-libusb:usb-release-interface *keyb* 0)
-  (cl-libusb:usb-release-interface *keyb* 1)
-  (cl-libusb:usb-release-interface *keyb* 2)
-  (cl-libusb:usb-release-interface *keyb* 3)
-  (cl-libusb:usb-release-interface *keyb* 4))
+  (%usb:release-interface *keyb* 0)
+  (%usb:release-interface *keyb* 1)
+  (%usb:release-interface *keyb* 2)
+  (%usb:release-interface *keyb* 3)
+  (%usb:release-interface *keyb* 4))
 
-;;(bmRequestType=0x21, bRequest=9, wValue=0x0200, wIndex=0, data_or_wLength=array.array'(
+;; ;;(bmRequestType=0x21, bRequest=9, wValue=0x0200, wIndex=0, data_or_wLength=array.array'(

@@ -4,9 +4,6 @@
   (:nicknames "a7t" :a7t)
   (:use #:common-lisp)
   (:import-from :alexandria)
-  (:import-from :cl-libusb)
   (:import-from :static-vectors)
   (:export
    #:get-apex7tkl-device))
-
-(in-package #:apex7tkl)
