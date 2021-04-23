@@ -6,7 +6,7 @@
 
 (defun debug-message (template &rest values)
   (when *debug*
-    (apply #'format (append `(t ,template) values))))
+    (apply #'format `(t ,template ,@values))))
 
 (defun send-control-message (vect)
   "Sends DATA to the device. "
