@@ -6,4 +6,4 @@
   (:import-from :alexandria)
   (:import-from :static-vectors)
   (:export
-   #:get-apex7tkl-device))
+   #:send-control-message))
