@@ -8,8 +8,8 @@
   (when *debug*
     (apply #'format `(t ,template ,@values))))
 
-(defun send-control-message (vect)
-  "Sends DATA to the device. "
+(defun send-control-message (data &optional (w-value #x300))
+  "Sends DATA in vector to the Apex 7 TKL device, using W-VALUE (default #x300)."
   (cffi:load-foreign-library "libusb-1.0.so")
   (let ((ctx (cffi:null-pointer))
         (vendor-id 4152)
@@ -21,7 +21,9 @@
     (let* ((keyb (%usb:open-device-with-vid-pid ctx vendor-id product-id))
            (auto-detach (%usb:set-auto-detach-kernel-driver keyb 1))
            (claim (%usb:claim-interface keyb 1))
-           (bytes-written (write-data keyb vect))
+           (bytes-written
+             (cffi::with-foreign-array (foreing-vect data `(:array %usb:uint8-t ,(array-total-size data)))
+               (%usb:control-transfer keyb #x21 #x9 w-value #x1 foreing-vect (array-total-size data) 3000)))
            (release (%usb:claim-interface keyb 1)))
       (debug-message
        "auto-detach: ~a~%claim: ~a~%bytes: ~a~%release: ~a~%"
@@ -32,12 +34,7 @@
       (%usb:close keyb))
     (%usb:exit ctx)))
 
-;; https://lisptips.com/post/44370032877/literal-syntax-for-integers
-
-(defun write-data (keyb vect)
-  (cffi::with-foreign-array (foreing-vect vect `(:array %usb:uint8-t ,(array-total-size vect)))
-    (%usb:control-transfer keyb #x21 #x9 #x300 #x1 foreing-vect 642 3000)))
-
+;; Function to drop in the REPL to test
 (defun test ()
            (let ((vect (make-array 642 :initial-element 0 :element-type 'integer)))
              (setf (elt vect 0) #x3a)
@@ -46,9 +43,11 @@
              (setf (elt vect 3) #xff)
              (setf (elt vect 4) #x00)
              (setf (elt vect 5) #x00)
-             (a7t:send-control-message vect)))
-;;(bmRequestType=0x21, bRequest=9, wValue=0x0200, wIndex=0, data_or_wLength=array.array'(
+             (a7t:send-control-message vect #x200)))
 
+
+
+;; https://lisptips.com/post/44370032877/literal-syntax-for-integers
 
 ;; libusb_error {
 ;; LIBUSB_SUCCESS = 0,
