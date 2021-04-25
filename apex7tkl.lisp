@@ -4,13 +4,16 @@
 
 (defparameter *debug* t "Print debug messages when runnning.")
 
+(defun initialize ()
+  (cffi:load-foreign-library "libusb-1.0.so")
+  )
+
 (defun debug-message (template &rest values)
   (when *debug*
     (apply #'format `(t ,template ,@values))))
 
 (defun send-control-message (data &optional (w-value #x300))
   "Sends DATA in vector to the Apex 7 TKL device, using W-VALUE (default #x300)."
-  (cffi:load-foreign-library "libusb-1.0.so")
   (let ((ctx (cffi:null-pointer))
         (vendor-id 4152)
         (product-id 5656))
@@ -33,6 +36,7 @@
        release)
       (%usb:close keyb))
     (%usb:exit ctx)))
+
 
 ;; Function to drop in the REPL to test
 (defun test ()
