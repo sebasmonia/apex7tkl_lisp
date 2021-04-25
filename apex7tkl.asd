@@ -11,5 +11,5 @@
                #:cffi-c-ref
                #:static-vectors)
   :components ((:file "package")
-               (:file "keycodes")))
+               (:file "keycodes")
                (:file "apex7tkl")))

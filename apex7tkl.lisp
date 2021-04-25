@@ -6,6 +6,7 @@
 
 (defun initialize ()
   (cffi:load-foreign-library "libusb-1.0.so")
+  (build-key-codes)
   )
 
 (defun debug-message (template &rest values)
@@ -37,18 +38,21 @@
       (%usb:close keyb))
     (%usb:exit ctx)))
 
-
-;; Function to drop in the REPL to test
-(defun test ()
-           (let ((vect (make-array 642 :initial-element 0 :element-type 'integer)))
-             (setf (elt vect 0) #x3a)
-             (setf (elt vect 1) #x69)
-             (setf (elt vect 2) #x29)
-             (setf (elt vect 3) #xff)
-             (setf (elt vect 4) #x00)
-             (setf (elt vect 5) #x00)
-             (a7t:send-control-message vect #x200)))
-
+(defun set-color-region (region-name red green blue)
+  (let ((region-codes (get-region-codes region-name))
+        (vect (make-array 642 :initial-element 0 :element-type 'integer)))
+    ;; hardcoded values for "set color"
+    (setf (elt vect 0) #x3a)
+    (setf (elt vect 1) #x69)
+    ;; start adding the 3 color values per key. We'll run the "position"
+    ;; in step of 4 since we'll add key-code + r + g +b
+    (loop for key-code in region-codes
+          for position from 2 below 1000 by 4
+          do (setf (elt vect position) key-code)
+             (setf (elt vect (+ 1 position)) red)
+             (setf (elt vect (+ 2 position)) green)
+             (setf (elt vect (+ 3 position)) blue))
+    (a7t:send-control-message vect #x200)))
 
 
 ;; https://lisptips.com/post/44370032877/literal-syntax-for-integers
