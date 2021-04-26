@@ -49,7 +49,7 @@
   ;; rightmost keys: arrows + pg up, pg down etc.
   (loop for key-code in '(73 74 75 76 77 78 79 80 81 82)
         for key-name in '("INS" "HOME" "PG_UP" "DEL" "END" "PG_DN" "ARROW_RIGHT" "ARROW_LEFT" "ARROW_DOWN" "ARROW_UP")
-        do (setf (gethash key-name *symbols-left*) key-code)
+        do (setf (gethash key-name *symbols-right2*) key-code)
            (setf (gethash key-name *all-keys*) key-code)))
 
 (defun get-region-codes (region-name)
