@@ -43,6 +43,8 @@ that depends on libusb and cffi."
     (%usb:exit ctx)))
 
 (defun set-color-region (region-name red green blue)
+  "Changes the color of the keys in REGION-NAME with RED GREEN BLUE values."
+  ;; TODO: validate red green blue 0~255
   (let ((region-codes (get-region-codes region-name))
         (vect (make-array 642 :initial-element 0 :element-type 'integer)))
     (debug-message "Key codes to color: ~a~%RGB: ~a ~a ~a~%" region-codes red green blue)
@@ -60,6 +62,7 @@ that depends on libusb and cffi."
     (a7t:send-control-message vect #x200)))
 
 (defun set-config (config-number)
+  "Set the keyboard to CONFIG-NUMBER configuration."
   (unless (member config-number '(1 2 3 4 5))
     (error "Invalid config-number. Configurations are in the range 1-5."))
   (let ((vect (make-array 20 :initial-element 0 :element-type 'integer)))
