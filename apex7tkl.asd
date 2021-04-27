@@ -12,4 +12,5 @@
                #:static-vectors)
   :components ((:file "package")
                (:file "keycodes")
+               (:file "images")
                (:file "apex7tkl")))

@@ -15,6 +15,9 @@ This is meant to be called before any operation."
   (cffi:load-foreign-library "libusb-1.0.so")
   (build-key-codes))
 
+;; TODO: w-value seems to be ok with either #x200 and #x300.
+;; Need more testing, for now I will copy the values from
+;; the Python version of the code
 (defun send-control-message (data &optional (w-value #x300))
   "Sends DATA in vector to the Apex 7 TKL device, using W-VALUE (default #x300).
 This function is the main only interaction point with the keyboard, and the only one
@@ -61,7 +64,7 @@ that depends on libusb and cffi."
              (setf (elt vect (+ 1 position)) red)
              (setf (elt vect (+ 2 position)) green)
              (setf (elt vect (+ 3 position)) blue))
-    (a7t:send-control-message vect #x200)))
+    (a7t:send-control-message vect #x300)))
 
 (defun set-color-keys (keys-colors-alist)
   "Changes the color KEYS-COLORS-ALIST, an alist with the format (keyname . (r g b))."
@@ -71,6 +74,8 @@ that depends on libusb and cffi."
     (setf (elt vect 1) #x69)
     ;; start adding the 3 color values per key. We'll run the "position"
     ;; in step of 4 since we'll add key-code + r + g +b
+    ;; unlike `set-color-region', here the rgb values can change
+    ;; also, translate the key name to its code to add it to the vector
     (loop for (key . (red green blue)) in keys-colors-alist
           for position from 2 below 1000 by 4
           for key-code = (get-key-code-by-name key)
@@ -79,17 +84,29 @@ that depends on libusb and cffi."
              (setf (elt vect (+ 1 position)) red)
              (setf (elt vect (+ 2 position)) green)
              (setf (elt vect (+ 3 position)) blue))
-    (a7t:send-control-message vect #x200)))
+    (a7t:send-control-message vect #x300)))
 
 (defun set-config (config-number)
   "Set the keyboard to CONFIG-NUMBER configuration."
   (unless (member config-number '(1 2 3 4 5))
     (error "Invalid config-number. Configurations are in the range 1-5."))
   (let ((vect (make-array 20 :initial-element 0 :element-type 'integer)))
-    ;; hardcoded values for "set config"
+    ;; hardcoded value for "set config"
     (setf (elt vect 0) #x89)
+    ;; the config number
     (setf (elt vect 1) config-number)
     (a7t:send-control-message vect #x200)))
+
+(defun display-image (image-path)
+  "Show IMAGE-PATH in the oled screen. Limitations apply.
+The resolution must be 128x40, and the image will be shown in black and white."
+  (let ((vect (make-array 20 :initial-element 0 :element-type 'integer)))
+    ;; hardcoded value for "OLED image"
+    (setf (elt vect 0) #x65)
+    ;; Add the image data
+    ;; TODO: convert image format here
+    (format-for-oled image-path))
+    (a7t:send-control-message vect #x300))
 
 ;; https://lisptips.com/post/44370032877/literal-syntax-for-integers
 
