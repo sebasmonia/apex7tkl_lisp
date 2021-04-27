@@ -6,4 +6,8 @@
   (:import-from :alexandria)
   (:import-from :static-vectors)
   (:export
-   #:send-control-message))
+   #:initialize
+   #:send-control-message
+   #:set-color-region
+   #:set-color-keys
+   #:set-config))

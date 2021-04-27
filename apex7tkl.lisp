@@ -2,7 +2,7 @@
 
 (in-package #:apex7tkl)
 
-(defparameter *debug* t "Set to t to print debug messages when runnning.")
+(defparameter *debug* t "Set to t to print debug messages when runnning, and enable extra debugging in libusb.")
 
 (defun debug-message (template &rest values)
   "Print the message in TEMPLATE using VALUES to standard output. A testing/debugging aid."
@@ -24,7 +24,9 @@ that depends on libusb and cffi."
         (product-id 5656))
     (unless (= (%usb:init ctx) 0)
       (error "Failed to initialize libusb"))
-    (%usb:set-debug ctx 3)
+    (when *debug*
+      (%usb:set-debug ctx 3)
+      (debug-message "Enabled extra libusb output."))
     ;; Track return code of each call
     (let* ((keyb (%usb:open-device-with-vid-pid ctx vendor-id product-id))
            (auto-detach (%usb:set-auto-detach-kernel-driver keyb 1))
@@ -34,7 +36,7 @@ that depends on libusb and cffi."
                (%usb:control-transfer keyb #x21 #x9 w-value #x1 foreing-vect (array-total-size data) 3000)))
            (release (%usb:claim-interface keyb 1)))
       (debug-message
-       "Output of device communication:~%auto-detach: ~a claim interface: ~a bytes sent: ~a release interface: ~a~%"
+       "Output of device communication: auto-detach: ~a claim interface: ~a bytes sent: ~a release interface: ~a~%"
        auto-detach
        claim
        bytes-written
@@ -56,6 +58,24 @@ that depends on libusb and cffi."
     (loop for key-code in region-codes
           for position from 2 below 1000 by 4
           do (setf (elt vect position) key-code)
+             (setf (elt vect (+ 1 position)) red)
+             (setf (elt vect (+ 2 position)) green)
+             (setf (elt vect (+ 3 position)) blue))
+    (a7t:send-control-message vect #x200)))
+
+(defun set-color-keys (keys-colors-alist)
+  "Changes the color KEYS-COLORS-ALIST, an alist with the format (keyname . (r g b))."
+  (let ((vect (make-array 642 :initial-element 0 :element-type 'integer)))
+    ;; hardcoded values for "set color"
+    (setf (elt vect 0) #x3a)
+    (setf (elt vect 1) #x69)
+    ;; start adding the 3 color values per key. We'll run the "position"
+    ;; in step of 4 since we'll add key-code + r + g +b
+    (loop for (key . (red green blue)) in keys-colors-alist
+          for position from 2 below 1000 by 4
+          for key-code = (get-key-code-by-name key)
+          do (debug-message "Adding key: ~a (~a) RGB: ~a ~a ~a~%" key key-code red green blue)
+             (setf (elt vect position) key-code)
              (setf (elt vect (+ 1 position)) red)
              (setf (elt vect (+ 2 position)) green)
              (setf (elt vect (+ 3 position)) blue))

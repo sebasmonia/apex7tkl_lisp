@@ -63,3 +63,10 @@
      ((eq region-name :symbols-right1) *symbols-right1*)
      ((eq region-name :symbols-right2) *symbols-right2*)
      (t (error "Invalid region-name. Must be one of: :alpha :number :f-keys :symbols-left :symbols-right1 :symbols-right2 :all")))))
+
+(defun get-key-code-by-name (key-name)
+  "Get the value to send to the keyboard to refer to KEY-NAME."
+  (let ((code (gethash key-name *all-keys*)))
+    (unless code
+      (error "Invalid key-name: ~a" key-name))
+    code))
