@@ -107,9 +107,8 @@ The resolution must be 128x40, and the image will be shown in black and white."
     (setf (elt vect 0) #x65)
     ;; Add the image data
     (loop for pixel in image-data
-          for ndx from 1 below 5122
+          for ndx from 1 below 643
           do (setf (elt vect ndx) pixel))
-    (debug-message "ooops: ~a~%" vect)
     (a7t:send-control-message vect #x300)))
 
 ;; https://lisptips.com/post/44370032877/literal-syntax-for-integers
