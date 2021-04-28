@@ -9,7 +9,7 @@
   :depends-on (#:alexandria
                #:claw-usb
                #:cffi-c-ref
-               #:static-vectors)
+               #:cl-gd)
   :components ((:file "package")
                (:file "keycodes")
                (:file "images")

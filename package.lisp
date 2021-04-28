@@ -4,7 +4,7 @@
   (:nicknames "a7t" :a7t)
   (:use #:common-lisp)
   (:import-from :alexandria)
-  (:import-from :static-vectors)
+  (:import-from :cl-gd)
   (:export
    #:initialize
    #:send-control-message
