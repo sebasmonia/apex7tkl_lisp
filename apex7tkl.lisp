@@ -100,13 +100,17 @@ that depends on libusb and cffi."
 (defun display-image (image-path)
   "Show IMAGE-PATH in the oled screen. Limitations apply.
 The resolution must be 128x40, and the image will be shown in black and white."
-  (let ((vect (make-array 20 :initial-element 0 :element-type 'integer)))
+  (let ((image-data (format-for-oled image-path))
+        (vect (make-array 642 :initial-element 0 :element-type 'integer)))
     ;; hardcoded value for "OLED image"
+    (debug-message "Image data: ~a~%" image-data)
     (setf (elt vect 0) #x65)
     ;; Add the image data
-    ;; TODO: convert image format here
-    (format-for-oled image-path))
-    (a7t:send-control-message vect #x300))
+    (loop for pixel in image-data
+          for ndx from 1 below 5122
+          do (setf (elt vect ndx) pixel))
+    (debug-message "ooops: ~a~%" vect)
+    (a7t:send-control-message vect #x300)))
 
 ;; https://lisptips.com/post/44370032877/literal-syntax-for-integers
 
