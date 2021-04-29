@@ -10,4 +10,6 @@
    #:send-control-message
    #:set-color-region
    #:set-color-keys
-   #:set-config))
+   #:set-config
+   #:display-image
+   #:display-text))
