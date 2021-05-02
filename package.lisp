@@ -6,6 +6,7 @@
   (:import-from :alexandria)
   (:import-from :cl-gd)
   (:export
+   #:main
    #:initialize
    #:send-control-message
    #:set-color-region
