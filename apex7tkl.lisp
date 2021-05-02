@@ -101,8 +101,8 @@ that depends on libusb and cffi."
   "Show IMAGE-PATH in the oled screen. Pixels over the 128x40 max limit are ignored.
 The image must use only 2 colors (black/ white), but with the optional CONVERT argument,
 an attempt is made to display a color image.
-If the image is smaller than 128x40, it is shown in the top left corner and the rest
-of the screen stays black."
+If the image is smaller than 128x40, it will be shown in the top left corner and the rest
+of the screen stays black, when I get around to fixing that. Right now it just distorts."
   (cl-gd:with-image-from-file* (image-path)
     (let ((converted-image (format-for-oled cl-gd:*default-image*
                                             (if convert
