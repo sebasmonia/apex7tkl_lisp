@@ -105,7 +105,6 @@ If the image is smaller than 128x40, it is shown in the top left corner and the 
 of the screen stays black."
   (cl-gd:with-image-from-file* (image-path)
     (let ((converted-image (format-for-oled cl-gd:*default-image*
-                                            :threshold
                                             (if convert
                                                 (detect-threshold cl-gd:*default-image*)
                                                 1)))

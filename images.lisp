@@ -5,11 +5,10 @@
 (defparameter +max-image-width+ 128 "Horizontal pixel size of the OLED screen.")
 (defparameter +max-image-height+ 40 "Vertical pixel size of the OLED screen.")
 
-(defun format-for-oled (image-data &key (threshold 1) (invert-colors nil))
+(defun format-for-oled (image-data &optional (threshold 1))
   "Formats the IMAGE-DATA for tramission to the oled screen.
-Keyword argument THRESHOLD indicates the maximum value a pixel must have to be painted
-white or black. Defaults to 1, ie paint everything not black.
-Keyword argument INVERT-COLORS, does exactly what it says in the tin. Defaults to nil.
+Optional argument THRESHOLD indicates the maximum value a pixel must have to be painted
+white or black. Defaults to 1, ie paint everything not strictly black in the original.
 This function is not very lispy. It is a rough conversion of the one in the original Python
 code. I will probably revisit this later..."
   (labels ((zero-or-one (pixel)
@@ -43,7 +42,7 @@ The average is good value to adjust use as threshold for `format-for-oled'."
     (ceiling (/ total counter))))
 
 
-(defun image-for-text (lines &optional (invert-colors nil))
+(defun image-for-text (lines)
   "Writes LINES list of strings in the oled screen."
   ;; Used the first cl-gd sample code as a starting point:
   (cl-gd:with-image* (+max-image-width+ +max-image-height+)
@@ -54,4 +53,4 @@ The average is good value to adjust use as threshold for `format-for-oled'."
           (cl-gd:draw-string 1 0 (or (first lines) ""))
           (cl-gd:draw-string 1 11 (or (second lines) ""))
           (cl-gd:draw-string 1 22 (or (third lines) "")))))
-    (format-for-oled cl-gd:*default-image* :invert-colors invert-colors)))
+    (format-for-oled cl-gd:*default-image*)))
