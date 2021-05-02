@@ -10,10 +10,11 @@ Uses https://github.com/borodust/claw-usb to consume libusb 1.0.
 
 - claw-usb: you need to download it from the repo linked above.
 - cl-gd: it is available in Quicklisp, but there's a manual setup step, see https://edicl.github.io/cl-gd/#install
-- adopt
-- alexandria
+- adopt (in Quicklisp)
+- alexandria (in Quicklisp)
 
-After having all the code in place:
+
+After having all the code that needs manual setup in place that Quicklisp can find it, for example `~/common-lisp`:
 
 ```common-lisp
 (ql:quickload :apex7tkl)
