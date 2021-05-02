@@ -98,26 +98,30 @@ that depends on libusb and cffi."
     (a7t:send-control-message vect #x200)))
 
 (defun display-image (image-path &optional (convert nil))
-  "Show IMAGE-PATH in the oled screen. Limitations apply.
-The resolution must be 128x40, and the image must use only 2 colors (black/ white). Use
-the optional CONVERT argument to attempt to display a color image. Results not guaranteed :)"
-  (let* ((image-data (cl-gd:create-image-from-file image-path))
-         (converted-image (format-for-oled image-data (if convert
-                                                        (detect-threshold image-data)
-                                                        1)))
-         (vect (make-array 642 :initial-element 0 :element-type 'integer)))
-    ;; hardcoded value for "OLED image"
-    (debug-message "Image data: ~a~%" converted-image)
-    (setf (elt vect 0) #x65)
-    ;; Add the image data
-    (loop for pixel in converted-image
-          for ndx from 1 below 643
-          do (setf (elt vect ndx) pixel))
-    (a7t:send-control-message vect #x300)))
+  "Show IMAGE-PATH in the oled screen. Pixels over the 128x40 max limit are ignored.
+The image must use only 2 colors (black/ white), but with the optional CONVERT argument,
+an attempt is made to display a color image.
+If the image is smaller than 128x40, it is shown in the top left corner and the rest
+of the screen stays black."
+  (cl-gd:with-image-from-file* (image-path)
+    (let ((converted-image (format-for-oled cl-gd:*default-image*
+                                            :threshold
+                                            (if convert
+                                                (detect-threshold cl-gd:*default-image*)
+                                                1)))
+          (vect (make-array 642 :initial-element 0 :element-type 'integer)))
+      (debug-message "Image data: ~a~%" converted-image)
+      ;; hardcoded value for "OLED image"
+      (setf (elt vect 0) #x65)
+      ;; Add the image data
+      (loop for pixel in converted-image
+            for ndx from 1 below 643
+            do (setf (elt vect ndx) pixel))
+      (a7t:send-control-message vect #x300))))
 
 (defun display-text (lines)
   "Write LINES to the display."
-  (let* ((converted-image (image-for-text nil))
+  (let* ((converted-image (image-for-text lines))
          (vect (make-array 642 :initial-element 0 :element-type 'integer)))
     ;; hardcoded value for "OLED image"
     ;; (debug-message "Image data: ~a~%" converted-image)
