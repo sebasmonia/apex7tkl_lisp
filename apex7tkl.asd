@@ -1,5 +1,10 @@
 ;;;; apex7tkl.asd
 
+;; See https://lispcookbook.github.io/cl-cookbook/scripting.html#building-a-smaller-binary-with-sbcls-core-compression
+#+sb-core-compression
+(defmethod asdf:perform ((o asdf:image-op) (c asdf:system))
+  (uiop:dump-image (asdf:output-file o c) :executable t :compression t))
+
 (asdf:defsystem #:apex7tkl
   :description "Library to communicate with the Steelseries Apex 7 TKL"
   :author "Sebastián Monía <smonia@outlook.com>"
