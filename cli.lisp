@@ -30,13 +30,13 @@ Examples:
 
 Paints a keyboard \"region\" with the RGB values specified.
 Valid regions are: alpha, number, f-keys, symbols-left, symbols-right1, symbols-right2, all
-For each color specify a value between 0 and 255.
+For each color, specify a value between 0 and 255.
 
 Examples:
 -Change the color of the F1~F12 keys to purple
     apex7tkl color f-keys 255 0 255
 
--Make the rightmost keys green:
+-Make the rightmost keys blue:
     apex7tkl color symbols-right2 0 0 255
 
 -Make all the letters into...whatever that color will be
