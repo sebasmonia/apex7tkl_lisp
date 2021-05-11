@@ -4,6 +4,8 @@
 
 (defparameter *test-args* nil "Arguments used when `uiop:command-line-arguments' is empty, for testing.")
 
+(defparameter *exit-code* 0 "The exit code to use when exiting.")
+
 (defparameter +help-text+
   "Usage: apex7tkl [command] [argument(s)]
 
@@ -109,4 +111,29 @@ Change to the N config for the keyboard. Valid configs are in the range 1-5.
                    (set-config (parse-integer (first command-args)))))
               (t (format *standard-output*  "Bad parameters. Use \"apex7tkl help\" for usage.~%~%"))))
     (error (c)
-      (format *standard-output* "ERROR:  ~a~%~%Use \"apex7tkl help\" for usage.~%" c))))
+      (setf *exit-code* 1) ;; ???
+      (format *standard-output* "ERROR: ~a" c)))
+    (exit-with-code *exit-code*))
+
+;; From https://www.cliki.net/Portable%20Exit
+(defun exit-with-code (code)
+  ;; This group from "clocc-port/ext.lisp"
+  #+allegro (excl:exit code)
+  #+clisp (#+lisp=cl ext:quit #-lisp=cl lisp:quit code)
+  #+cmu (ext:quit code)
+  #+cormanlisp (win32:exitprocess code)
+  #+gcl (lisp:bye code)                     ; XXX Or is it LISP::QUIT?
+  #+lispworks (lw:quit :status code)
+  #+lucid (lcl:quit code)
+  #+sbcl (sb-ext:exit :code code)
+  ;; This group from Maxima
+  #+kcl (lisp::bye)                         ; XXX Does this take an arg?
+  #+scl (ext:quit code)                     ; XXX Pretty sure this *does*.
+  #+(or openmcl mcl) (ccl::quit)
+  #+abcl (cl-user::quit)
+  #+ecl (si:quit)
+  ;; This group from <hebi...@math.uni.wroc.pl>
+  #+poplog (poplog::bye)                    ; XXX Does this take an arg?
+  #-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbc
+        kcl scl openmcl mcl abcl ecl)
+  (error 'not-implemented :proc (list 'exit-with-code code)))

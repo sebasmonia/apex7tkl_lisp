@@ -24,27 +24,32 @@ This function is the main only interaction point with the keyboard, and the only
 that depends on libusb and cffi."
   (let ((ctx (cffi:null-pointer))
         (vendor-id 4152)
-        (product-id 5656))
+        (product-id 5656)
+        (keyb nil))
     (unless (= (%usb:init ctx) 0)
       (error "Failed to initialize libusb"))
     (when *debug*
       (%usb:set-debug ctx 3)
       (debug-message "Enabled extra libusb output."))
-    ;; Track return code of each call
-    (let* ((keyb (%usb:open-device-with-vid-pid ctx vendor-id product-id))
-           (auto-detach (%usb:set-auto-detach-kernel-driver keyb 1))
-           (claim (%usb:claim-interface keyb 1))
-           (bytes-written
-             (cffi::with-foreign-array (foreing-vect data `(:array %usb:uint8-t ,(array-total-size data)))
-               (%usb:control-transfer keyb #x21 #x9 w-value #x1 foreing-vect (array-total-size data) 3000)))
-           (release (%usb:claim-interface keyb 1)))
-      (debug-message
-       "Output of device communication: auto-detach: ~a claim interface: ~a bytes sent: ~a release interface: ~a~%"
-       auto-detach
-       claim
-       bytes-written
-       release)
-      (%usb:close keyb))
+    (setf keyb (%usb:open-device-with-vid-pid ctx vendor-id product-id))
+    (if (cffi:null-pointer-p keyb)
+        (setf *exit-code* 19) ;; allegedly "No such device"
+        ;; else, start interacting with the device:
+        ;; Track return code of each call
+        (let* ((auto-detach (%usb:set-auto-detach-kernel-driver keyb 1))
+               (claim (%usb:claim-interface keyb 1))
+               (bytes-written
+                 (cffi::with-foreign-array (foreing-vect data `(:array %usb:uint8-t ,(array-total-size data)))
+                   (%usb:control-transfer keyb #x21 #x9 w-value #x1 foreing-vect (array-total-size data) 3000)))
+               (release (%usb:claim-interface keyb 1)))
+          (debug-message
+           "Output of device communication: auto-detach: ~a claim interface: ~a bytes sent: ~a release interface: ~a~%"
+           auto-detach
+           claim
+           bytes-written
+           release)
+          (%usb:close keyb)))
+    ;; Device present or not, close the context
     (%usb:exit ctx)))
 
 (defun set-color-region (region-name red green blue)
@@ -148,4 +153,4 @@ of the screen stays black, when I get around to fixing that. Right now it just d
 ;; LIBUSB_ERROR_NO_MEM = -11,
 ;; LIBUSB_ERROR_NOT_SUPPORTED = -12,
 ;; LIBUSB_ERROR_OTHER = -99
-;; }
+  ;; }
