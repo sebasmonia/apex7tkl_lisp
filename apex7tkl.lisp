@@ -21,10 +21,12 @@ This is meant to be called before any operation."
 (defun send-control-message (data &optional (w-value #x300))
   "Sends DATA in vector to the Apex 7 TKL device, using W-VALUE (default #x300).
 This function is the main only interaction point with the keyboard, and the only one
-that depends on libusb and cffi."
+that depends on libusb and cffi.
+The return value can be interpreted as an exit code."
   (let ((ctx (cffi:null-pointer))
         (vendor-id 4152)
         (product-id 5656)
+        (return-value 0)
         (keyb nil))
     (unless (= (%usb:init ctx) 0)
       (error "Failed to initialize libusb"))
@@ -33,7 +35,7 @@ that depends on libusb and cffi."
       (debug-message "Enabled extra libusb output."))
     (setf keyb (%usb:open-device-with-vid-pid ctx vendor-id product-id))
     (if (cffi:null-pointer-p keyb)
-        (setf *exit-code* 19) ;; allegedly "No such device"
+        (setf return-value 19) ;; allegedly, exit code for "No such device"
         ;; else, start interacting with the device:
         ;; Track return code of each call
         (let* ((auto-detach (%usb:set-auto-detach-kernel-driver keyb 1))
@@ -42,6 +44,8 @@ that depends on libusb and cffi."
                  (cffi::with-foreign-array (foreing-vect data `(:array %usb:uint8-t ,(array-total-size data)))
                    (%usb:control-transfer keyb #x21 #x9 w-value #x1 foreing-vect (array-total-size data) 3000)))
                (release (%usb:claim-interface keyb 1)))
+          (unless (= bytes-written (array-total-size data))
+            (setf return-value 1))
           (debug-message
            "Output of device communication: auto-detach: ~a claim interface: ~a bytes sent: ~a release interface: ~a~%"
            auto-detach
@@ -50,7 +54,8 @@ that depends on libusb and cffi."
            release)
           (%usb:close keyb)))
     ;; Device present or not, close the context
-    (%usb:exit ctx)))
+    (%usb:exit ctx)
+    return-value))
 
 (defun set-color-region (region-name red green blue)
   "Changes the color of the keys in REGION-NAME with RED GREEN BLUE values."

@@ -5,6 +5,7 @@
   (:use #:common-lisp)
   (:import-from :alexandria)
   (:import-from :cl-gd)
+  (:import-from :cl-argparse)
   (:export
    #:main
    #:initialize

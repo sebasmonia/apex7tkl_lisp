@@ -16,7 +16,8 @@
   :entry-point "apex7tkl:main"
   :depends-on (#:alexandria
                #:claw-usb
-               #:cl-gd)
+               #:cl-gd
+               #:cl-argparse)
   :components ((:file "package")
                (:file "keycodes")
                (:file "images")
