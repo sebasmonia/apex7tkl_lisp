@@ -63,7 +63,7 @@ Paints a keyboard "region" with the RGB values specified.
 Valid regions are: alpha, number, f-keys, symbols-left, symbols-right1, symbols-right2, all.  
 For each color, specify a value between 0 and 255.  
 &nbsp;&nbsp;  
-`apex7tkl color numbers 0 255 0`
+`apex7tkl color numbers 0 255 0`  
 &nbsp;&nbsp;  
 Will make all numbers 1~0 in the top row, green
 
@@ -72,7 +72,7 @@ Will make all numbers 1~0 in the top row, green
 Shows an image in the OLED screen. It should be 128x40, black/white only, but you can try a color image.
 Any format that GD can open, should work.  
 &nbsp;&nbsp;  
-`apex7tkl image path/to/image.png`
+`apex7tkl image path/to/image.png`  
 
 ### text
 
@@ -80,7 +80,7 @@ Up to three lines of text can be displayed. The screen fits 21 characters, your 
 The line arguments (`--line-1` or `-1` for line 1, etc) are naturally separated by spaces, so surround your text in quotes or use \ to escape them as needed.  
 With the move to cl-argparse, the format of this command changed:  
 &nbsp;&nbsp;  
-`apex7tkl text -1 "line 1" -3 this\ is\ escaped\ too`
+`apex7tkl text -1 "line 1" -3 this\ is\ escaped\ too`  
 &nbsp;&nbsp;  
 Will print in the first and third line, leaving the second line blank.
 
