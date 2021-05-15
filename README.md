@@ -10,6 +10,7 @@ Uses https://github.com/borodust/claw-usb to consume libusb 1.0.
 
 - claw-usb: you need to download it from the repo linked above.
 - cl-gd: it is available in Quicklisp, but there's a manual setup step, see https://edicl.github.io/cl-gd/#install
+- cl-argparse: although it is in Quicklisp, you'll need to use my fork, it adds an initialization parameter. Submitted a PR, so hopefully this disclaimer goes away soon!
 - UIOP
 - Alexandria
 
@@ -50,13 +51,11 @@ After having all the code that needs manual setup in a place that Quicklisp can 
 
 ## CLI Usage
 
-I figured the CLI would be simple, which is true...but by not using a library for options, the code for 
-it ain't pretty.   
+The v2 of the CLI uses the excellent [cl-argparse](https://github.com/simkoc/cl-argparse) to declare the GUI. I forked it to add a parameter to customize the "program name" in the help text.  
+
 Included `build.sh` as a little helper to dump an executable image.  
-  
-There are four commands: color, image, text and config. Use "help" to get a general overview not unlike the one below.  
-  
-You can also use "[command] help" for more details on each command.
+
+There are four commands: color, image, text and config. Use `apex7tkl [command] -h` to get help.  
 
 ### color
 
@@ -74,7 +73,10 @@ Any format that GD can open, should work.
 ### text
 
 Up to three lines of text can be displayed. The screen fits 21 characters, your lines can be longer than that, the rest is sent to the keyboard but won't show.  
-The line argumetns  are naturally separated by spaces, so surround your text in quotes or use \ to escape them as needed, for example: `apex7tkl text "line 1" line\ 2 Third-line-no-spaces`
+The line arguments are naturally separated by spaces, so surround your text in quotes or use \ to escape them as needed.
+With the mode to cl-argparse, the format of this command changed:  
+`apex7tkl text -1 "line 1" -3 this\ is\ escaped\ too`
+Will print in the first and third line, leaving the second line blank.
 
 ### config
 

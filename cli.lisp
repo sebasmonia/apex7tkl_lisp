@@ -43,8 +43,10 @@
 
 (defparameter *arg-parser*
   (cl-argparse:create-main-parser
-      (main-parser "Interact with the SteelSeries Apex 7 TKL keyboard using the CLI.
-There are four commands: color, image, text and config. You can use \"apex7tkl [command]\" for more details."))
+      (main-parser
+       "Interact with the SteelSeries Apex 7 TKL keyboard using the CLI.
+There are four commands: color, image, text and config. You can use \"apex7tkl [command]\" for more details."
+       "apex7tkl"))
   "The main argument parser.")
 
 (cl-argparse:add-subparser
