@@ -51,7 +51,7 @@ After having all the code that needs manual setup in a place that Quicklisp can 
 
 ## CLI Usage
 
-The v2 of the CLI uses the excellent [cl-argparse](https://github.com/simkoc/cl-argparse) to declare the GUI. I forked it to add a parameter to customize the "program name" in the help text.  
+The v2 of the CLI uses the excellent [cl-argparse](https://github.com/simkoc/cl-argparse) to declare the UI. I forked it to add a parameter to customize the "program name" in the help text.  
 
 Included `build.sh` as a little helper to dump an executable image.  
 
@@ -60,27 +60,34 @@ There are four commands: color, image, text and config. Use `apex7tkl [command] 
 ### color
 
 Paints a keyboard "region" with the RGB values specified.  
-Valid regions are: alpha, number, f-keys, symbols-left, symbols-right1, symbols-right2, all
+Valid regions are: alpha, number, f-keys, symbols-left, symbols-right1, symbols-right2, all.  
 For each color, specify a value between 0 and 255.  
-Example, to make all numbers green, `apex7tkl color numbers 0 255 0`
+&nbsp;&nbsp;  
+`apex7tkl color numbers 0 255 0`
+&nbsp;&nbsp;  
+Will make all numbers 1~0 in the top row, green
 
 ### image
 
 Shows an image in the OLED screen. It should be 128x40, black/white only, but you can try a color image.
 Any format that GD can open, should work.  
+&nbsp;&nbsp;  
 `apex7tkl image path/to/image.png`
 
 ### text
 
 Up to three lines of text can be displayed. The screen fits 21 characters, your lines can be longer than that, the rest is sent to the keyboard but won't show.  
-The line arguments are naturally separated by spaces, so surround your text in quotes or use \ to escape them as needed.
-With the mode to cl-argparse, the format of this command changed:  
+The line arguments (`--line-1` or `-1` for line 1, etc) are naturally separated by spaces, so surround your text in quotes or use \ to escape them as needed.  
+With the move to cl-argparse, the format of this command changed:  
+&nbsp;&nbsp;  
 `apex7tkl text -1 "line 1" -3 this\ is\ escaped\ too`
+&nbsp;&nbsp;  
 Will print in the first and third line, leaving the second line blank.
 
 ### config
 
 Change to one of the five configurations that can be preset in the keyboard.  
+&nbsp;&nbsp;  
 `apex7tkl config 1` (or 2, 3, 4 ,5)  
-  
+&nbsp;&nbsp;  
 This is also an easy way to reset colors & screen :)
