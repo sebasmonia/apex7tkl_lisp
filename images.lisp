@@ -18,8 +18,11 @@ code. I will probably revisit this later..."
     (let ((byte-data (make-array 8))
           (index 0)
           (translated nil))
-      (loop for y from 0 below (min (cl-gd:image-height image-data) +max-image-height+)
-            do (loop for x from 0 below (min (cl-gd:image-width image-data) +max-image-width+)
+      ;; Conveniently, cl-gd:get-pixel returns 0 for (x,y) out of bounds for
+      ;; the image so we can loop for max image width/height and everything
+      ;; over limits will be black :)
+      (loop for y from 0 below +max-image-height+
+            do (loop for x from 0 below +max-image-width+
                      do
                         (setf (elt byte-data index) (zero-or-one
                                                      (cl-gd:get-pixel x y :image image-data)))
@@ -33,7 +36,7 @@ code. I will probably revisit this later..."
 
 (defun detect-threshold (image-data)
   "Go over the image's raw pixels and get the average value.
-The average is good value to adjust use as threshold for `format-for-oled'."
+The average is a good value to use as threshold for `format-for-oled'."
   (let ((counter 0)
         (total 0))
     (cl-gd:do-pixels (image-data)

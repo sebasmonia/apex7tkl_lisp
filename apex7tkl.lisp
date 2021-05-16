@@ -32,7 +32,7 @@ The return value can be interpreted as an exit code."
       (error "Failed to initialize libusb"))
     (when *debug*
       (%usb:set-debug ctx 3)
-      (debug-message "Enabled extra libusb output."))
+      (debug-message "Enabled extra libusb output.~%"))
     (setf keyb (%usb:open-device-with-vid-pid ctx vendor-id product-id))
     (if (cffi:null-pointer-p keyb)
         (setf return-value 19) ;; allegedly, exit code for "No such device"
@@ -112,7 +112,7 @@ The return value can be interpreted as an exit code."
 The image must use only 2 colors (black/ white), but with the optional CONVERT argument,
 an attempt is made to display a color image.
 If the image is smaller than 128x40, it will be shown in the top left corner and the rest
-of the screen stays black, when I get around to fixing that. Right now it just distorts."
+of the screen stays black."
   (cl-gd:with-image-from-file* (image-path)
     (let ((converted-image (format-for-oled cl-gd:*default-image*
                                             (if convert
